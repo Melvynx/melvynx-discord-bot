@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "build": "tsc",
+    "start": "node dist/src/index.js"
   },
   "dependencies": {
     "@types/node": "^20.5.0",

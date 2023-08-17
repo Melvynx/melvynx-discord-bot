@@ -6,18 +6,26 @@ const userQuestionState = new Map<
 >();
 
 const resetUserState = (userId: string) => {
+  console.log("Reset user state", userId);
+  console.trace();
   userQuestionState.set(userId, {
     state: 1,
     info: {},
   });
 };
 
+function isRecentlyKicked(kickDate: Date): boolean {
+  return kickDate.getTime() > Date.now() - 5 * 60 * 1000;
+}
+
 const setUserKickDate = (userId: string) => {
+  console.log("setUserKickDate", userId);
   const userState = userQuestionState.get(userId);
 
   if (!userState) return;
 
   userState.kickDate = new Date();
+  userState.info.isWarned = false;
   userQuestionState.set(userId, userState);
 };
 
@@ -27,25 +35,38 @@ export const handlePrivateMessageQuiz = async (
 ) => {
   if (msg.channel.type !== ChannelType.DM) return;
 
-  const user = msg.author;
+  const user = msg.author.bot ? msg.channel.recipient : msg.author;
+
+  if (!user) {
+    console.log("No user found.");
+    return;
+  }
+
   const content = msg.content.toLowerCase();
   const guild = client.guilds.cache.get(process.env.GUILD_ID || "");
   const member = guild?.members.cache.get(user.id);
+  const userId = user.id;
+  const userState = userQuestionState.get(userId);
+  let questionState = userState?.state || 0;
 
   if (msg.author.bot) {
-    const userId = msg.author.id;
-    const userState = userQuestionState.get(userId);
     if (userState) {
       const kickDate = userState.kickDate;
+      console.log(kickDate);
 
       if (!kickDate) {
         return;
       }
 
-      if (kickDate.getTime() > Date.now() - 5 * 60 * 1000) {
-        msg.channel.send(
+      if (isRecentlyKicked(kickDate) && !userState.info.isWarned) {
+        userState.info.isWarned = true;
+        await msg.channel.send(
           "Tu as été kick il y a moins de 5 minutes. Tu dois attendre 5 minutes avant de pouvoir revenir. Dans 5 minutes, envoie moi un message."
         );
+        return;
+      }
+
+      if (userState.state === 1) {
         return;
       }
     }
@@ -59,16 +80,30 @@ Répond uniquement par le nom de la technologie sans aucune autre information.`
     );
 
     return;
+  } else {
+    if (userState?.kickDate && isRecentlyKicked(userState.kickDate)) {
+      userState.info.isWarned = true;
+      await msg.channel.send(
+        "Tu as été kick il y a moins de 5 minutes. Tu dois attendre 5 minutes avant de pouvoir revenir. Dans 5 minutes, envoie moi un message."
+      );
+      return;
+    }
+  }
+
+  if (!user) {
+    msg.channel.send("You are not a member of the server.");
+    return;
+  }
+
+  if (!userState) {
+    msg.channel.send("You are not a member of the server.");
+    return;
   }
 
   if (!member) {
     msg.channel.send("You are not a member of the server.");
     return;
   }
-
-  // Get or set the question state from the map using user's ID
-  let userState = userQuestionState.get(user.id) || { state: 1, info: {} };
-  let questionState = userState.state;
 
   switch (questionState) {
     case 1:
@@ -91,7 +126,9 @@ Répond par a, b, c ou d **uniquement**.
 `
         );
       } else {
-        await msg.channel.send("You failed. Goodbye.");
+        await msg.channel.send(
+          "Je suis désolé, c'est une mauvaise réponse. Tu peux retenter ta chance dans 5 minutes."
+        );
 
         await member
           .kick("Failed the quiz.")
@@ -113,10 +150,10 @@ Répond par a, b, c ou d **uniquement**.
 Présente ce que tu fais actuellement en 1 phrases (minimum 26 caractères) :`
         );
       } else {
-        msg.channel.send(
-          "Tu as échoué. Je suis contraint de kick ! Au revoir."
+        await msg.channel.send(
+          "Je suis désolé, c'est une mauvaise réponse. Tu peux retenter ta chance dans 5 minutes."
         );
-        member
+        await member
           .kick("Failed the quiz.")
           .catch((err: unknown) =>
             console.log("Failed to kick member due to: ", err)

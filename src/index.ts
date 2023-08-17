@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 import { Client, GatewayIntentBits } from "discord.js";
-import { handleMemberJoin } from "./welcomeMessage";
+import { channelsByUser, handleMemberJoin } from "./welcomeMessage";
 import { handlePrivateMessageQuiz } from "./privateMessageQuiz";
 
 const client = new Client({
@@ -16,6 +16,10 @@ const client = new Client({
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
 client.on("ready", () => {
+  setInterval(() => {
+    if (channelsByUser.size === 0) return;
+  }, 1000);
+
   console.log(`Logged in as ${client.user?.tag}`);
 });
 

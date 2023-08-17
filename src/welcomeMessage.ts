@@ -1,9 +1,11 @@
 import { ButtonBuilder, ButtonStyle, ChannelType, GuildMember } from "discord.js";
-import { userQuestionState } from "./privateMessageQuiz";
 
-type ChannelByUser = Map<string, string>;
+type ChannelByUser = {
+  userId: string;
+  channelId: string;
+}[];
 
-export const channelsByUser: ChannelByUser = new Map();
+export const channelsByUser: ChannelByUser = [];
 
 export const handleMemberJoin = async (member: GuildMember) => {
   console.log(`New member joined: ${member.user.username}`);
@@ -14,24 +16,11 @@ export const handleMemberJoin = async (member: GuildMember) => {
 
   let errorTime = "Tu as été exclu il y a moins de 5 minutes. Il te faut patienter pendant 5 minutes avant de pouvoir réintégrer le groupe. Après ce délai, n'hésite pas à m'envoyer un message.";
 
-  const button = (disabled: boolean) => new ButtonBuilder()
+  const button = new ButtonBuilder()
     .setCustomId("start_quiz")
     .setLabel("Commencer le mini-quiz")
     .setStyle(ButtonStyle.Primary)
-    .setEmoji("🪪")
-    .setDisabled(disabled);
-
-  if (userQuestionState.has(member.id)) {
-    const userState = userQuestionState.get(member.id);
-    const kickDate = userState?.kickDate;
-    if (!kickDate) return;
-    if (isRecentlyKicked(kickDate) && !userState.info.isWarned) {
-      userState.info.isWarned = true;
-      member.send(errorTime).catch(console.error);
-      member.kick("Recently kicked").catch(console.error);
-      return;
-    }
-  }
+    .setEmoji("🪪");
 
   await member.guild.channels.create({
     name: member.user.username,
@@ -43,10 +32,10 @@ export const handleMemberJoin = async (member: GuildMember) => {
     ]
   }).catch(console.error).then(async(channel) => {
     if (!channel) return;
-    channelsByUser.set(member.id, channel.id);
+    channelsByUser.push({ userId: member.id, channelId: channel.id });
     const msgSended = await channel.send({
       content: message,
-      components: [{ type: 1, components: [button(false)] }]
+      components: [{ type: 1, components: [button] }]
     }).catch(console.error);
 
     if (!msgSended) return;
@@ -54,7 +43,7 @@ export const handleMemberJoin = async (member: GuildMember) => {
       await i.deferUpdate();
       await i.editReply({
         content: "Si tout c'est bien déroulé, tu devrais recevoir un message privé de ma part. Si ce n'est pas le cas, vérifie que tu as bien activé les messages privés dans les paramètres du serveur :wink:",
-        components: [{ type: 1, components: [button(true)] }]
+        components: [{ type: 1, components: [button] }]
       }).catch(console.error);
 
       const user = await member.guild.members.fetch(member.id);

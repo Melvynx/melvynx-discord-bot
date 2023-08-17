@@ -1,6 +1,6 @@
 - Question **1**: Quel est la technologies préférer de Melvyn, répond avec le nom de la technologie 🤗
 
-a. React
+1. React
 2. Angular
 3. Vue
 4. Svelte

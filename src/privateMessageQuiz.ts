@@ -1,10 +1,25 @@
 import { ChannelType, Client, Message } from "discord.js";
 
-// Map to store user question state in RAM
 const userQuestionState = new Map<
   string,
-  { state: number; info: Record<string, string | boolean> }
+  { state: number; info: Record<string, string | boolean>; kickDate?: Date }
 >();
+
+const resetUserState = (userId: string) => {
+  userQuestionState.set(userId, {
+    state: 1,
+    info: {},
+  });
+};
+
+const setUserKickDate = (userId: string) => {
+  const userState = userQuestionState.get(userId);
+
+  if (!userState) return;
+
+  userState.kickDate = new Date();
+  userQuestionState.set(userId, userState);
+};
 
 export const handlePrivateMessageQuiz = async (
   msg: Message,
@@ -19,13 +34,23 @@ export const handlePrivateMessageQuiz = async (
 
   if (msg.author.bot) {
     const userId = msg.author.id;
-    if (userQuestionState.get(userId)) return;
+    const userState = userQuestionState.get(userId);
+    if (userState) {
+      const kickDate = userState.kickDate;
 
-    const userState = {
-      state: 1,
-      info: {},
-    };
-    userQuestionState.set(userId, userState);
+      if (!kickDate) {
+        return;
+      }
+
+      if (kickDate.getTime() > Date.now() - 5 * 60 * 1000) {
+        msg.channel.send(
+          "Tu as été kick il y a moins de 5 minutes. Tu dois attendre 5 minutes avant de pouvoir revenir. Dans 5 minutes, envoie moi un message."
+        );
+        return;
+      }
+    }
+
+    resetUserState(userId);
 
     msg.channel.send(
       `Question 1 :  quel est la technologies préférer de Melvyn ? (React / VueJS / Angular / Svelte) ?
@@ -66,16 +91,15 @@ Répond par a, b, c ou d **uniquement**.
 `
         );
       } else {
-        msg.channel.send("You failed. Goodbye.");
+        await msg.channel.send("You failed. Goodbye.");
 
-        setTimeout(() => {
-          member
-            .kick("Failed the quiz.")
-            .catch((err: unknown) =>
-              console.log("Failed to kick member due to: ", err)
-            );
-        }, 500);
-        userQuestionState.delete(user.id);
+        await member
+          .kick("Failed the quiz.")
+          .catch((err: unknown) =>
+            console.log("Failed to kick member due to: ", err)
+          );
+
+        setUserKickDate(user.id);
       }
       break;
 
@@ -92,14 +116,13 @@ Présente ce que tu fais actuellement en 1 phrases (minimum 26 caractères) :`
         msg.channel.send(
           "Tu as échoué. Je suis contraint de kick ! Au revoir."
         );
-        setTimeout(() => {
-          member
-            .kick("Failed the quiz.")
-            .catch((err: unknown) =>
-              console.log("Failed to kick member due to: ", err)
-            );
-        }, 500);
-        userQuestionState.delete(user.id);
+        member
+          .kick("Failed the quiz.")
+          .catch((err: unknown) =>
+            console.log("Failed to kick member due to: ", err)
+          );
+
+        setUserKickDate(user.id);
       }
       break;
     case 3:
@@ -130,10 +153,10 @@ Présente ce que tu fais actuellement en 1 phrases (minimum 26 caractères) :`
     case 5:
       if (content === "oui" || content === "non") {
         if (content === "oui") {
-          member?.roles.add("1141597909767438397");
+          member.roles.add("1141597909767438397");
+          userState.info.freelance = true;
         }
         userState.state = 6;
-        userState.info.freelance = true;
         userQuestionState.set(user.id, userState);
         msg.channel.send(
           "Question 5 : aimerais-tu créer un SaaS (Software as a Service) ? (oui / non)"
@@ -148,10 +171,10 @@ Présente ce que tu fais actuellement en 1 phrases (minimum 26 caractères) :`
     case 6:
       if (content === "oui" || content === "non") {
         if (content === "oui") {
-          member?.roles.add("1141597934450905128");
+          member.roles.add("1141597934450905128");
+          userState.info.indie = true;
         }
         userState.state = 7; // Move to next question or end of quiz
-        userState.info.indie = true;
         userQuestionState.set(user.id, userState);
         msg.channel.send(
           "Question 6 : aimerais-tu créer du contenu (blog, vidéos, etc.) ? (oui / non)"
@@ -165,13 +188,13 @@ Présente ce que tu fais actuellement en 1 phrases (minimum 26 caractères) :`
     case 7:
       if (content === "oui" || content === "non") {
         if (content === "oui") {
-          member?.roles.add("1141597957666373643");
+          member.roles.add("1141597957666373643");
+          userState.info.creator = true;
         }
-        userState.info.creator = true;
 
         userState.state = 8;
         msg.channel.send(
-          "Question 7 : aimerais-tu être notifié quand Melvyn à besoin de toi ?"
+          "Question 7 : aimerais-tu être notifié quand Melvyn à besoin de toi ? (oui / non)"
         );
       } else {
         msg.channel.send(
@@ -181,12 +204,12 @@ Présente ce que tu fais actuellement en 1 phrases (minimum 26 caractères) :`
 
       break;
     case 8:
-      if (content === "oui") {
-        member?.roles.add("1141597501258997810");
+      if (content !== "non") {
+        member.roles.add("1141597501258997810");
       }
 
       msg.channel.send("Merci ! Tu as maintenant accès au serveur.");
-      member?.roles.add("1141600989808443423");
+      member.roles.add("1141600989808443423");
 
       const welcomeChannel = guild?.channels.cache.get("1141597624064032870");
       if (welcomeChannel?.type === ChannelType.GuildText) {

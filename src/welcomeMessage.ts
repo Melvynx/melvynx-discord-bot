@@ -9,8 +9,10 @@ export const handleMemberJoin = async (member: GuildMember) => {
 
   if (channel.type !== ChannelType.GuildText) return;
 
-  channel.send(`Welcome to the server, ${member.user.tag}`);
+  channel.send(`Hello <@${member.id}>!
+  
+Pour pouvoir rejoindre le server et avoir accès à tous les channels, tu dois répondre à quelques questions que je t'envoie en privé !`);
   member.send(
-    "Welcome to the server! Please answer the following questions..."
+    `Hello ! C'est ici que ça se passe. Afin d'éviter d'avoir des bots / troll / spam qui viennent sur le server, et pour garentir des membres actif et déterminé, on va prendre quelques minutes pour faire connaissance.`
   );
 };

@@ -1,4 +1,4 @@
-- Question **1**: Quel est la technologies préférer de Melvyn, répond avec le nom de la technologie 🤗
+- Question **1**: Quelle est la technologie préférée de Melvyn ? Réponds avec le nom de la technologie 🤗
 
 1. React
 2. Angular

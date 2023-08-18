@@ -1,4 +1,4 @@
-- Question **2**: Quel est l’erreur dans ce code, répond avec la lettre correspondante:
+- Question **2**: Quelle est l'erreur dans ce code ? Réponds avec la lettre correspondante :
 
 ```ts
 const fn = () = "I'm a function"

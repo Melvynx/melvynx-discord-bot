@@ -13,4 +13,4 @@ Voici quelques informations pour mieux savoir ce qu'il fait et ce qu'il aime:
 - Il est intéressé par :
 {interests}
 
-Dites lui bienvenue ! 🎉`;
+Souhaitons-lui la bienvenue ! 🎉`;

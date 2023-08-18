@@ -1,0 +1,16 @@
+🔔 Nouveau lynx !
+
+Bienvenue <@{userId}> sur le serveur ! 🎉
+
+Voici quelques informations pour mieux savoir ce qu'il fait et ce qu'il aime:
+
+- __Activité actuelle__:
+{currentActivity}
+
+- __Ancienne activité__:
+{previousActivity}
+
+- Il est intéressé par :
+{interests}
+
+Dites lui bienvenue ! 🎉`;

@@ -1,0 +1,10 @@
+- Question **2**: Quel est l’erreur dans ce code, répond avec la lettre correspondante:
+
+```ts
+const fn = () = "I'm a function"
+```
+
+a. Il devrait y avoir un `console.log` dans la fonction
+b. Il manque la flèche `⇒` dans la fonction
+c. Il faut utiliser `let` au lieu de `const`
+d. Il n'y a pas d'erreur dans ce code

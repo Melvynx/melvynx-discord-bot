@@ -1,8 +1,8 @@
 import "dotenv/config";
 
 import { Client, GatewayIntentBits } from "discord.js";
-import { handleMemberJoin } from "./welcomeMessage";
-import { handlePrivateMessageQuiz } from "./privateMessageQuiz";
+import { handleMemberJoin } from "./events/memberJoin";
+import { handleMessageCreate } from "./events/messageCreate";
 
 const client = new Client({
   intents: [
@@ -10,6 +10,7 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildMessages
   ],
 });
 
@@ -21,7 +22,6 @@ client.on("ready", () => {
 
 client.on("guildMemberAdd", handleMemberJoin);
 client.on("messageCreate", async (msg) => {
-  handlePrivateMessageQuiz(msg, client);
+  handleMessageCreate(msg, client);
 });
-
 client.login(BOT_TOKEN);

@@ -45,17 +45,13 @@ export const handleMemberJoin = async (member: GuildMember) => {
     }, 1000);
   }
 
-  setTimeout(() => {
+  setTimeout(async() => {
     if (!users.find((u) => u.userId === member.id)?.quizStarted) {
       channel.delete();
-      try {
-        member.send({
-          content: "Vous avez été expulsé du serveur car vous n'avez pas démarré le quiz à temps.",
-          components: []
-        });
-      } catch {
-        console.log("Member has DMs disabled");
-      }
+      await member.send({
+        content: "Vous avez été expulsé du serveur car vous n'avez pas démarré le quiz à temps.",
+        components: []
+      }).catch(() => console.log("Member has DMs disabled"));
 
       member.kick();
     }

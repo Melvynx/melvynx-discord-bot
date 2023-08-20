@@ -1,3 +1,3 @@
-![GitHub Preview](image-2.png)
+![GitHub Preview](./image.png)
 
 [https://github.com/Melvynx/MelvynxBot/settings](https://github.com/Melvynx/MelvynxBot/settings)

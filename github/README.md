@@ -1,3 +1,5 @@
 ![GitHub Preview](./image.png)
 
-[https://github.com/Melvynx/MelvynxBot/settings](https://github.com/Melvynx/MelvynxBot/settings)
+
+## To update the github cover image click here:
+- [https://github.com/Melvynx/MelvynxBot/settings](https://github.com/Melvynx/MelvynxBot/settings)

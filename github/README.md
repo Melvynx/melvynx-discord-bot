@@ -1,3 +1,8 @@
-![GitHub Preview](image-2.png)
+![GitHub Preview](./image.png)
 
-[https://github.com/Melvynx/MelvynxBot/settings](https://github.com/Melvynx/MelvynxBot/settings)
+
+## To update the github cover image click here:
+
+Use the "PREVIEW IMAGE.png" is the image to use for the cover image with the correct size and format.
+
+🧢 [https://github.com/Melvynx/MelvynxBot/settings](https://github.com/Melvynx/MelvynxBot/settings)

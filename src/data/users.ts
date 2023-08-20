@@ -39,7 +39,7 @@ type UserData = {
 const freelanceRole = process.env.FREELANCE_ROLE_ID ?? "";
 const indieRole = process.env.INDIE_ROLE_ID ?? "";
 const creatorRole = process.env.CREATOR_ROLE_ID ?? "";
-const melvynxPing = process.env.MELVYNX_PING ?? "";
+const melvynxPing = process.env.MELVYNX_PING_ID ?? "";
 
 export const users: UserData = [];
 

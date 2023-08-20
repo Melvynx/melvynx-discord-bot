@@ -75,7 +75,15 @@ export const handleMemberJoin = async(member: GuildMember): Promise<void> => {
     userId: member.id,
     quizStarted: false,
     data: {
-      state: "MELVYNX_LOVE_STACK"
+      state: "MELVYNX_LOVE_STACK",
+      info: {
+        creator: false,
+        freelance: false,
+        indie: false,
+        ping: false,
+        currentActivity: "",
+        previousActivity: ""
+      }
     }
   });
 };

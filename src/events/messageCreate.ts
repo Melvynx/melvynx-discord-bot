@@ -72,6 +72,8 @@ export const handleMessageCreate = async (message: Message, client: Client) => {
     if (user.data.info?.creator) interests.push("`📝` Création de contenu");
     if (interests.length === 0) interests.push("Aucun intérêt a été renseigné.");
 
+    member.roles.add(process.env.MEMBER_ROLE_ID!);
+
     const text = readFileSync("./resources/welcome.txt", "utf-8")
       .replace("{userId}", user.userId)
       .replace("{currentActivity}", user.data.info?.currentActivity || "Aucune")

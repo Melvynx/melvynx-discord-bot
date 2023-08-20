@@ -1,9 +1,13 @@
 import { ChannelType, Client, Message } from "discord.js";
 import { endQuiz, getMessageState, getState, getUser, saveResponse, setRecentlyKicked } from "../data/users";
 import { readFileSync } from "fs";
+import { redisClient } from "../client";
+import dayjs from "dayjs";
 
 export const handleMessageCreate = async (message: Message, client: Client) => {
   if (message.author.bot) return;
+  redisClient.set(message.author.id, dayjs().unix().toString());
+
   if (!getUser(message.author.id)?.quizStarted) return;
   if (message.channelId !== getUser(message.author.id)?.channelId) return;
 

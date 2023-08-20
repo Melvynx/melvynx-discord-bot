@@ -3,8 +3,10 @@ import "dotenv/config";
 import { Client, GatewayIntentBits } from "discord.js";
 import { handleMemberJoin } from "./events/memberJoin";
 import { handleMessageCreate } from "./events/messageCreate";
+import { createClient } from "redis";
+import { inactivityJob } from "./cron/inactivity";
 
-const client = new Client({
+export const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
@@ -14,6 +16,19 @@ const client = new Client({
   ],
 });
 
+export const redisClient = createClient({
+  password: process.env.REDIS_PASSWORD,
+  socket: {
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT!)
+  }
+});
+
+redisClient.on("error", (err) => { console.log("Redis error: " + err) });
+redisClient.on("ready", () => { console.log("Redis ready") });
+
+redisClient.connect();
+
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
 client.on("ready", () => {
@@ -21,7 +36,8 @@ client.on("ready", () => {
 });
 
 client.on("guildMemberAdd", handleMemberJoin);
-client.on("messageCreate", async (msg) => {
-  handleMessageCreate(msg, client);
-});
+client.on("messageCreate", async (msg) => { handleMessageCreate(msg, client) });
+
+inactivityJob.start();
+
 client.login(BOT_TOKEN);

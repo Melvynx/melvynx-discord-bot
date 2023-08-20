@@ -1,0 +1,3 @@
+Patiente encore jusqu'à <t:{time}:f>, avant de recommencer le quiz !
+
+La prochaine fois évite les mauvaises réponses 🤗

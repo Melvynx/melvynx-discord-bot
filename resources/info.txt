@@ -1,0 +1,3 @@
+Salut <@{userId}>, et bienvenue sur le serveur Discord de la communauté de Melvynx !
+
+Afin de pouvoir accéder au serveur et à l'ensemble des salons, il te faudra répondre à __quelques questions__, dès que tu aura cliqué sur le bouton ci-dessous.

@@ -25,13 +25,13 @@ type UserData = {
   canRestart?: number;
   data: {
     state: STATES;
-    info?: {
-      currentActivity?: string;
-      previousActivity?: string;
-      freelance?: boolean;
-      indie?: boolean;
-      creator?: boolean;
-      ping?: boolean;
+    info: {
+      currentActivity: string;
+      previousActivity: string;
+      freelance: boolean;
+      indie: boolean;
+      creator: boolean;
+      ping: boolean;
     };
   }
 }[];
@@ -76,7 +76,9 @@ export const resetUser = (userId: string) => {
       creator: false,
       freelance: false,
       indie: false,
-      ping: false
+      ping: false,
+      currentActivity: "",
+      previousActivity: ""
     }
   };
 }
@@ -162,20 +164,16 @@ export const saveResponse = (userId: string, response: string, client: Client): 
   if (state === "FREELANCE" || state === "INDIE" || state === "CREATOR" || state === "MELVYNX_NEED_YOU") {
     switch (state) {
       case "FREELANCE":
-        if (user.data.info?.freelance) break;
-        user.data.info = { freelance: true };
+        user.data.info.freelance = giveRole;
         break;
       case "INDIE":
-        if (user.data.info?.indie) break;
-        user.data.info = { indie: true };
+        user.data.info.indie = giveRole;
         break;
       case "CREATOR":
-        if (user.data.info?.creator) break;
-        user.data.info = { creator: true };
+        user.data.info.creator = giveRole; 
         break;
       case "MELVYNX_NEED_YOU":
-        if (user.data.info?.ping) break;
-        user.data.info = { ping: true };
+        user.data.info.ping = giveRole;
         break;
     }
 
@@ -188,8 +186,10 @@ export const saveResponse = (userId: string, response: string, client: Client): 
     if (state === "MELVYNX_NEED_YOU" && !member.roles.cache.has(melvynxPing) && giveRole) member.roles.add(melvynxPing);
   }
 
-  if (state === "BEFORE") user.data.info = { previousActivity: response };
-  if (state === "AFTER") user.data.info = { currentActivity: response };
+  if (state === "BEFORE") user.data.info.previousActivity = response;
+  if (state === "AFTER") user.data.info.currentActivity = response;
+
+  users[users.indexOf(user)] = user;
 
   upState(userId);
   return getState(userId);

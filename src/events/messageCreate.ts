@@ -78,13 +78,15 @@ export const handleMessageCreate = async (message: Message, client: Client) => {
 
     member.roles.add(process.env.MEMBER_ROLE_ID!);
 
-    const text = readFileSync("./resources/welcome.txt", "utf-8")
-      .replace("{userId}", user.userId)
-      .replace("{currentActivity}", user.data.info?.currentActivity || "Aucune")
-      .replace("{previousActivity}", user.data.info?.previousActivity || "Aucune")
-      .replace("{interests}", `${interests.join(" ")}`);
+    const text = readFileSync("./resources/welcome.txt", "utf-8");
 
-    const welcomeMessage = await welcomeChannel.send(text);
+    const welcomeMessage = await welcomeChannel.send(replaceAll({
+      "{userId}": user.userId,
+      "{currentActivity}": user.data.info?.currentActivity || "Aucune",
+      "{previousActivity}": user.data.info?.previousActivity || "Aucune",
+      "{interests}": `${interests.join(" ")}`
+    }, text));
+    
     const thread = await welcomeMessage.startThread({
       name: `Bienvenue ${message.author.username}`,
       autoArchiveDuration: 1440
@@ -95,3 +97,11 @@ export const handleMessageCreate = async (message: Message, client: Client) => {
     message.reply({ content: getMessageState(message.author.id) });
   }
 };
+
+export const replaceAll = (repl: { [key: string]: string }, str: string): string => {
+  for (const [key, value] of Object.entries(repl)) {
+    str = str.replace(key, value);
+  }
+
+  return str;
+}

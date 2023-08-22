@@ -47,38 +47,46 @@ export const handleMemberJoin = async (member: GuildMember): Promise<void> => {
   });
 
   if (TTS === "kicked") {
-    setInterval(() => {
-      const user = getUser(member.id);
-      if (user?.canRestart && dayjs().unix() > user.canRestart) {
-        message.edit({
-          content: readFileSync("./resources/info.txt", "utf-8")
-            .replace("{userId}", member.id)
-            .replace("{time}", canRestart.toString()),
-          components: [
-            {
-              type: 1,
-              components: [startQuizButton(false)],
-            },
-          ],
-        });
+    setInterval(async () => {
+      try {
+        const user = getUser(member.id);
+        if (user?.canRestart && dayjs().unix() > user.canRestart) {
+          await message.edit({
+            content: readFileSync("./resources/info.txt", "utf-8")
+              .replace("{userId}", member.id)
+              .replace("{time}", canRestart.toString()),
+            components: [
+              {
+                type: 1,
+                components: [startQuizButton(false)],
+              },
+            ],
+          });
 
-        clearInterval(this);
+          clearInterval(this);
+        }
+      } catch (e) {
+        console.error(e);
       }
     }, 1000);
   }
 
   setTimeout(async () => {
-    if (!users.find((u) => u.userId === member.id)?.quizStarted) {
-      channel.delete();
-      await member
-        .send({
-          content:
-            "Vous avez été expulsé du serveur car vous n'avez pas démarré le quiz à temps.",
-          components: [],
-        })
-        .catch(() => console.log("Member has DMs disabled"));
+    try {
+      if (!users.find((u) => u.userId === member.id)?.quizStarted) {
+        await channel.delete();
+        await member
+          .send({
+            content:
+              "Vous avez été expulsé du serveur car vous n'avez pas démarré le quiz à temps.",
+            components: [],
+          })
+          .catch(() => console.log("Member has DMs disabled"));
 
-      member.kick();
+        member.kick();
+      }
+    } catch (e) {
+      console.error(e);
     }
   }, 3600000);
 

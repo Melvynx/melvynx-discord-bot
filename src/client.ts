@@ -12,20 +12,24 @@ export const client = new Client({
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.GuildMessages
+    GatewayIntentBits.GuildMessages,
   ],
 });
 
 export const redisClient = createClient({
   password: process.env.REDIS_PASSWORD,
   socket: {
-      host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT!)
-  }
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT!),
+  },
 });
 
-redisClient.on("error", (err) => { console.log("Redis error: " + err) });
-redisClient.on("ready", () => { console.log("Redis ready") });
+redisClient.on("error", (err) => {
+  console.log("Redis error: " + err);
+});
+redisClient.on("ready", () => {
+  console.log("Redis ready");
+});
 
 redisClient.connect();
 
@@ -35,8 +39,20 @@ client.on("ready", () => {
   console.log(`Logged in as ${client.user?.tag}`);
 });
 
-client.on("guildMemberAdd", handleMemberJoin);
-client.on("messageCreate", async (msg) => { handleMessageCreate(msg, client) });
+client.on("guildMemberAdd", (...params) => {
+  try {
+    handleMemberJoin(...params);
+  } catch (err) {
+    console.log(err);
+  }
+});
+client.on("messageCreate", async (msg) => {
+  try {
+    handleMessageCreate(msg, client);
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 inactivityJob.start();
 

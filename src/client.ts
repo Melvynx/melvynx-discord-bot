@@ -39,16 +39,16 @@ client.on("ready", () => {
   console.log(`Logged in as ${client.user?.tag}`);
 });
 
-client.on("guildMemberAdd", (...params) => {
+client.on("guildMemberAdd", async (...params) => {
   try {
-    handleMemberJoin(...params);
+    await handleMemberJoin(...params);
   } catch (err) {
     console.log(err);
   }
 });
 client.on("messageCreate", async (msg) => {
   try {
-    handleMessageCreate(msg, client);
+    await handleMessageCreate(msg, client);
   } catch (err) {
     console.log(err);
   }

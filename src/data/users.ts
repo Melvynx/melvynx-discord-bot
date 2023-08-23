@@ -13,6 +13,7 @@ type STATES =
   | "INDIE"
   | "CREATOR"
   | "MELVYNX_NEED_YOU"
+  | "USER_NAME"
   | "DONE";
 export const idByStates: Record<STATES, number> = {
   MELVYNX_LOVE_STACK: 1,
@@ -23,7 +24,8 @@ export const idByStates: Record<STATES, number> = {
   INDIE: 6,
   CREATOR: 7,
   MELVYNX_NEED_YOU: 8,
-  DONE: 9,
+  USER_NAME: 9,
+  DONE: 10,
 };
 
 type UserData = {
@@ -43,17 +45,17 @@ type UserData = {
       ping: boolean;
     };
   };
-}[];
+};
 
 const freelanceRole = process.env.FREELANCE_ROLE_ID ?? "";
 const indieRole = process.env.INDIE_ROLE_ID ?? "";
 const creatorRole = process.env.CREATOR_ROLE_ID ?? "";
 const melvynxPing = process.env.MELVYNX_PING_ID ?? "";
 
-export const users: UserData = [];
+export const users = new Map();
 
 export const getUser = (userId: string) => {
-  return users.find((u) => u.userId === userId);
+  return users.get(userId) as UserData | undefined;
 };
 
 export const isRecentlyKicked = (userId: string) => {
@@ -130,10 +132,10 @@ export const deleteUser = (userId: string) => {
   const user = getUser(userId);
   if (!user) return;
 
-  users.splice(users.indexOf(user), 1);
+  users.delete(userId);
 };
 
-export const getState = (userId: string): UserData[0]["data"]["state"] => {
+export const getState = (userId: string): UserData["data"]["state"] => {
   const user = getUser(userId);
   if (!user) return "MELVYNX_LOVE_STACK";
 
@@ -153,6 +155,7 @@ export const upState = (userId: string) => {
     "INDIE",
     "CREATOR",
     "MELVYNX_NEED_YOU",
+    "USER_NAME",
     "DONE",
   ];
   const index = states.indexOf(user.data.state);
@@ -172,7 +175,7 @@ export const endQuiz = (userId: string) => {
   const user = getUser(userId);
   if (!user) return;
 
-  users.splice(users.indexOf(user), 1);
+  deleteUser(userId);
 };
 
 export const getMessageState = (userId: string): string => {
@@ -189,7 +192,7 @@ export const saveResponse = (
   userId: string,
   response: string,
   client: Client
-): UserData[0]["data"]["state"] | "ERROR" => {
+): UserData["data"]["state"] | "ERROR" => {
   const user = getUser(userId);
   if (!user) return "ERROR";
 
@@ -243,7 +246,16 @@ export const saveResponse = (
   if (state === "BEFORE") user.data.info.previousActivity = response;
   if (state === "AFTER") user.data.info.currentActivity = response;
 
-  users[users.indexOf(user)] = user;
+  if (state === "USER_NAME" && response !== "X") {
+    const member = client.guilds.cache
+      .get(process.env.GUILD_ID ?? "")
+      ?.members.cache.get(userId);
+    if (member) {
+      member.setNickname(response.slice(0, 32));
+    }
+  }
+
+  users.set(userId, user);
 
   upState(userId);
   return getState(userId);

@@ -15,17 +15,20 @@ export const handleMessageCreate = async (message: Message, client: Client) => {
   if (message.author.bot) return;
   redisClient.set(message.author.id, dayjs().unix().toString());
 
-  if (!getUser(message.author.id)?.quizStarted) return;
-  if (message.channelId !== getUser(message.author.id)?.channelId) return;
-
   const user = getUser(message.author.id);
   if (!user) return;
+  if (!user.quizStarted) return;
+  if (message.channelId !== user.channelId) return;
 
   const member = message.guild?.members.cache.get(message.author.id);
   if (!member) return;
 
   const state = getState(message.author.id);
   let newState: ReturnType<typeof saveResponse> = "MELVYNX_LOVE_STACK";
+
+  if (state === "USER_NAME") {
+    newState = saveResponse(message.author.id, message.content, client);
+  }
 
   if (state === "AFTER" || state === "BEFORE") {
     if (message.content.length < 26) {

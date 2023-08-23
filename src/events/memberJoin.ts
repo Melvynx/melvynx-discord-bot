@@ -47,7 +47,7 @@ export const handleMemberJoin = async (member: GuildMember): Promise<void> => {
   });
 
   if (TTS === "kicked") {
-    setInterval(async () => {
+    const interval = setInterval(async () => {
       try {
         const user = getUser(member.id);
         if (user?.canRestart && dayjs().unix() > user.canRestart) {
@@ -63,7 +63,7 @@ export const handleMemberJoin = async (member: GuildMember): Promise<void> => {
             ],
           });
 
-          clearInterval(this);
+          clearInterval(interval);
         }
       } catch (e) {
         console.error(e);
@@ -73,7 +73,8 @@ export const handleMemberJoin = async (member: GuildMember): Promise<void> => {
 
   setTimeout(async () => {
     try {
-      if (!users.find((u) => u.userId === member.id)?.quizStarted) {
+      const user = getUser(member.id);
+      if (!user?.quizStarted) {
         await channel.delete();
         await member
           .send({
@@ -104,20 +105,26 @@ export const handleMemberJoin = async (member: GuildMember): Promise<void> => {
       });
     });
 
-  users.push({
-    channelId: channel.id,
-    userId: member.id,
-    quizStarted: false,
-    data: {
-      state: "MELVYNX_LOVE_STACK",
-      info: {
-        creator: false,
-        freelance: false,
-        indie: false,
-        ping: false,
-        currentActivity: "",
-        previousActivity: "",
+  const user = getUser(member.id);
+
+  if (user) {
+    user.channelId = channel.id;
+  } else {
+    users.set(member.id, {
+      channelId: channel.id,
+      userId: member.id,
+      quizStarted: false,
+      data: {
+        state: "MELVYNX_LOVE_STACK",
+        info: {
+          creator: false,
+          freelance: false,
+          indie: false,
+          ping: false,
+          currentActivity: "",
+          previousActivity: "",
+        },
       },
-    },
-  });
+    });
+  }
 };

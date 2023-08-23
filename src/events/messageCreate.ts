@@ -140,7 +140,7 @@ export const replaceAll = (
   str: string
 ): string => {
   for (const [key, value] of Object.entries(repl)) {
-    str = str.replace(key, value);
+    str = str.replaceAll(key, value);
   }
 
   return str;

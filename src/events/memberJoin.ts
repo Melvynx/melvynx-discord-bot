@@ -13,21 +13,17 @@ import dayjs from "dayjs";
 import { redisClient } from "../client";
 
 export const handleMemberJoin = async (member: GuildMember): Promise<void> => {
-  const channel = await member.guild.channels.create({
+  const verifyChannel = member.guild.channels.cache.get(process.env.VERIFY_CHANNEL_ID!);
+  if (!verifyChannel) return;
+  if (verifyChannel.type !== ChannelType.GuildText) return;
+
+  const channel = await verifyChannel.threads.create({
     name: member.user.username,
-    type: ChannelType.GuildText,
-    position: 0,
-    permissionOverwrites: [
-      {
-        id: member.guild.id,
-        deny: ["ViewChannel", "SendMessages", "ReadMessageHistory"],
-      },
-      {
-        id: member.id,
-        allow: ["ViewChannel", "ReadMessageHistory", "SendMessages"],
-      },
-    ],
+    type: ChannelType.PrivateThread,
+    invitable: false,
   });
+
+  await channel.members.add(member.id);
 
   const TTS = isRecentlyKicked(member.id) ? "kicked" : "info";
   const canRestart = dayjs()

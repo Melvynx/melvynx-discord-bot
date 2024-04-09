@@ -10,15 +10,15 @@ const job = async () => {
   if (!guild) return;
 
   guild.members.fetch().then(async (members) => {
-    members.forEach(async (member) => {
-      if (member.user.bot) return;
+    for (const member of members.values()) {
+      if (member.user.bot) continue;
 
-      if (!await redisClient.get(member.id)) return;
+      if (!await redisClient.get(member.id)) continue;
 
       const redisDate = await redisClient.get(member.id);
       if (!redisDate) {
         await redisClient.set(member.id, dayjs().unix().toString());
-        return;
+        continue;
       }
 
       const date = dayjs.unix(parseInt(redisDate));
@@ -38,7 +38,7 @@ const job = async () => {
             )
           );
 
-        return;
+        continue;
       }
 
       if (diff === 3) {
@@ -53,7 +53,7 @@ const job = async () => {
             )
           );
 
-        return;
+        continue;
       }
 
       if (diff === 4) {
@@ -66,7 +66,7 @@ const job = async () => {
           .send({
             content:
               "Vous êtes inactif depuis 6 mois, malheureusement nous avons dû vous retirer du serveur. Vous pouvez toujours revenir en utilisant le lien d'invitation.",
-            components: [{ type: 1, components: [button] }],
+            components: [{type: 1, components: [button]}],
           })
           .catch(() =>
             console.log(
@@ -75,9 +75,8 @@ const job = async () => {
           );
 
         await member.kick();
-        return;
       }
-    });
+    }
   });
 };
 

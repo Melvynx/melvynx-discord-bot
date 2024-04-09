@@ -13,11 +13,11 @@ const job = async () => {
     members.forEach(async (member) => {
       if (member.user.bot) return;
 
-      if (!redisClient.get(member.id)) return;
+      if (!await redisClient.get(member.id)) return;
 
       const redisDate = await redisClient.get(member.id);
       if (!redisDate) {
-        redisClient.set(member.id, dayjs().unix().toString());
+        await redisClient.set(member.id, dayjs().unix().toString());
         return;
       }
 
@@ -74,7 +74,7 @@ const job = async () => {
             )
           );
 
-        member.kick();
+        await member.kick();
         return;
       }
     });

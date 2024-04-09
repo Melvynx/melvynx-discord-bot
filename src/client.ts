@@ -31,7 +31,7 @@ redisClient.on("ready", () => {
   console.log("Redis ready");
 });
 
-redisClient.connect();
+void redisClient.connect();
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
@@ -56,4 +56,4 @@ client.on("messageCreate", async (msg) => {
 
 inactivityJob.start();
 
-client.login(BOT_TOKEN);
+void client.login(BOT_TOKEN);

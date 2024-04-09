@@ -115,12 +115,12 @@ export const setRecentlyKicked = async (
     })
     .catch(() => console.log("Member has DMs disabled"));
 
-  member.kick();
+  await member.kick();
 
   const channel = member.guild.channels.cache.get(user.channelId);
   if (!channel) return;
 
-  channel.delete();
+  await channel.delete();
   resetUser(userId);
 
   setTimeout(() => {

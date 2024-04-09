@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 
 export const handleMessageCreate = async (message: Message, client: Client) => {
   if (message.author.bot) return;
-  redisClient.set(message.author.id, dayjs().unix().toString());
+  await redisClient.set(message.author.id, dayjs().unix().toString());
 
   const user = getUser(message.author.id);
   if (!user) return;
@@ -32,7 +32,7 @@ export const handleMessageCreate = async (message: Message, client: Client) => {
 
   if (state === "AFTER" || state === "BEFORE") {
     if (message.content.length < 26) {
-      message.reply({
+      await message.reply({
         content:
           "Votre réponse est trop courte, merci de répondre avec au moins 26 caractères.",
       });
@@ -69,7 +69,7 @@ export const handleMessageCreate = async (message: Message, client: Client) => {
       message.content.toLowerCase() !== "oui" &&
       message.content.toLowerCase() !== "non"
     ) {
-      message.reply({
+      await message.reply({
         content:
           "Merci de répondre seulement par `oui` ou `non`, autre chose ne sera pas pris en compte.",
       });
@@ -84,12 +84,12 @@ export const handleMessageCreate = async (message: Message, client: Client) => {
   }
 
   if (newState === "ERROR") {
-    message.reply({
+    await message.reply({
       content: "Une erreur est survenue, merci de réessayer plus tard.",
     });
     return;
   } else if (newState === "DONE") {
-    message.reply({ content: getMessageState(message.author.id) });
+    await message.reply({content: getMessageState(message.author.id)});
     endQuiz(message.author.id);
     setTimeout(() => {
       message.channel.delete();
@@ -108,7 +108,7 @@ export const handleMessageCreate = async (message: Message, client: Client) => {
     if (interests.length === 0)
       interests.push("Aucun intérêt a été renseigné.");
 
-    member.roles.add(process.env.MEMBER_ROLE_ID!);
+    await member.roles.add(process.env.MEMBER_ROLE_ID!);
 
     const text = readFileSync("./resources/welcome.txt", "utf-8");
 
@@ -131,7 +131,7 @@ export const handleMessageCreate = async (message: Message, client: Client) => {
 
     thread.send(`Bienvenue <@${user.userId}> ❤️ (de Melvynx)`);
   } else {
-    message.reply({ content: getMessageState(message.author.id) });
+    await message.reply({content: getMessageState(message.author.id)});
   }
 };
 

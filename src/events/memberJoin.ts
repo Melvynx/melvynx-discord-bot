@@ -80,7 +80,7 @@ export const handleMemberJoin = async (member: GuildMember): Promise<void> => {
           })
           .catch(() => console.log("Member has DMs disabled"));
 
-        member.kick();
+        await member.kick();
       }
     } catch (e) {
       console.error(e);
@@ -94,7 +94,7 @@ export const handleMemberJoin = async (member: GuildMember): Promise<void> => {
     .on("collect", async (i) => {
       await i.deferUpdate();
       startQuiz(member.id);
-      redisClient.set(member.id, dayjs().unix().toString());
+      await redisClient.set(member.id, dayjs().unix().toString());
       await i.editReply({
         content: getMessageState(member.id),
         components: [],

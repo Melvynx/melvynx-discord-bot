@@ -42,11 +42,9 @@ export const handleAntiLinkDiscussions = async (message: Message): Promise<void>
     const site = await fetch(url[0]);
     const title = parseTitle(await site.text());
 
-    await message.channel.threads.create({
+    await message.startThread({
       name: title,
       autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
-      type: ChannelType.PublicThread,
-      invitable: true,
     });
 
   } catch (e) {

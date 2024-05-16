@@ -5,6 +5,7 @@ import { handleMemberJoin } from "./events/memberJoin";
 import { handleMessageCreate } from "./events/messageCreate";
 import { createClient } from "redis";
 import { inactivityJob } from "./cron/inactivity";
+import { handleAntiLinkDiscussions } from "./utils/antiLinkDiscussions";
 
 export const client = new Client({
   intents: [
@@ -49,6 +50,7 @@ client.on("guildMemberAdd", async (...params) => {
 client.on("messageCreate", async (msg) => {
   try {
     await handleMessageCreate(msg, client);
+    await handleAntiLinkDiscussions(msg);
   } catch (err) {
     console.log(err);
   }

@@ -1,9 +1,9 @@
 import "dotenv/config";
 
 import { CronJob } from "cron";
-import { client, redisClient } from "../client";
 import dayjs from "dayjs";
 import { ButtonBuilder, ButtonStyle } from "discord.js";
+import { client, redisClient } from "../client";
 
 const job = async () => {
   const guild = client.guilds.cache.get(process.env.GUILD_ID!);
@@ -13,7 +13,7 @@ const job = async () => {
     for (const member of members.values()) {
       if (member.user.bot) continue;
 
-      if (!await redisClient.get(member.id)) continue;
+      if (!(await redisClient.get(member.id))) continue;
 
       const redisDate = await redisClient.get(member.id);
       if (!redisDate) {
@@ -66,7 +66,7 @@ const job = async () => {
           .send({
             content:
               "Vous êtes inactif depuis 6 mois, malheureusement nous avons dû vous retirer du serveur. Vous pouvez toujours revenir en utilisant le lien d'invitation.",
-            components: [{type: 1, components: [button]}],
+            components: [{ type: 1, components: [button] }],
           })
           .catch(() =>
             console.log(
@@ -74,7 +74,7 @@ const job = async () => {
             )
           );
 
-        await member.kick();
+        // await member.kick();
       }
     }
   });
